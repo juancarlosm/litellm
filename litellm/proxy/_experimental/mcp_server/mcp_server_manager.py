@@ -1984,7 +1984,8 @@ class MCPServerManager:
         # oauth2 headers
         extra_headers: Optional[Dict[str, str]] = None
         if mcp_server.auth_type == MCPAuth.oauth2:
-            extra_headers = oauth2_headers
+            # Copy to avoid mutating the shared oauth2_headers dict from the ContextVar
+            extra_headers = dict(oauth2_headers) if oauth2_headers else None
 
         if mcp_server.extra_headers and raw_headers:
             if extra_headers is None:

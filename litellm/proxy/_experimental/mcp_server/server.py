@@ -2008,7 +2008,7 @@ if MCP_AVAILABLE:
                 server = global_mcp_server_manager.get_mcp_server_by_name(
                     server_name, client_ip=_client_ip
                 )
-                if server and server.auth_type == MCPAuth.oauth2 and not oauth2_headers:
+                if server and server.auth_type == MCPAuth.oauth2 and not oauth2_headers and not server.has_client_credentials:
                     request = StarletteRequest(scope)
                     base_url = get_request_base_url(request)
 
