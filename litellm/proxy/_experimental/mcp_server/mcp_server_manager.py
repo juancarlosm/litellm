@@ -1983,9 +1983,16 @@ class MCPServerManager:
 
         # oauth2 headers
         extra_headers: Optional[Dict[str, str]] = None
-        if mcp_server.auth_type == MCPAuth.oauth2:
-            # Copy to avoid mutating the shared oauth2_headers dict from the ContextVar
+        if mcp_server.auth_type == MCPAuth.oauth2 and not mcp_server.has_client_credentials:
+            # For user-facing OAuth2 only: forward the user's token to the downstream.
+            # M2M servers self-authenticate via resolve_mcp_auth; copying oauth2_headers
+            # here would overwrite the M2M token with the client's LiteLLM API key.
             extra_headers = dict(oauth2_headers) if oauth2_headers else None
+
+        # Canary header — remove once patch is confirmed working in container
+        if extra_headers is None:
+            extra_headers = {}
+        extra_headers["x-litellm-mcp-patched"] = "v4"
 
         if mcp_server.extra_headers and raw_headers:
             if extra_headers is None:

@@ -822,8 +822,10 @@ if MCP_AVAILABLE:
             server_auth_header = mcp_server_auth_headers.get(server.server_name)
 
         extra_headers: Optional[Dict[str, str]] = None
-        if server.auth_type == MCPAuth.oauth2:
-            # Copy to avoid mutating the original dict (important for parallel fetching)
+        if server.auth_type == MCPAuth.oauth2 and not server.has_client_credentials:
+            # For user-facing OAuth2 only: forward the user's token to the downstream.
+            # M2M servers self-authenticate via resolve_mcp_auth; copying oauth2_headers
+            # here would overwrite the M2M token with the client's LiteLLM API key.
             extra_headers = oauth2_headers.copy() if oauth2_headers else None
 
         if server.extra_headers and raw_headers:

@@ -199,6 +199,10 @@ class MCPClient:
         """Generate authentication headers based on auth type."""
         headers = {}
 
+        # extra_headers first so that an explicit auth value always takes priority
+        if self.extra_headers:
+            headers.update(self.extra_headers)
+
         if self._mcp_auth_value:
             if isinstance(self._mcp_auth_value, str):
                 if self.auth_type == MCPAuth.bearer_token:
@@ -213,10 +217,6 @@ class MCPClient:
                     headers["Authorization"] = f"Bearer {self._mcp_auth_value}"
             elif isinstance(self._mcp_auth_value, dict):
                 headers.update(self._mcp_auth_value)
-
-        # update the headers with the extra headers
-        if self.extra_headers:
-            headers.update(self.extra_headers)
 
         return headers
 
